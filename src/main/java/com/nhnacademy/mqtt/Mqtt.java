@@ -4,7 +4,7 @@ package com.nhnacademy.mqtt;
  * Hello world!
  *
  */
-public class App 
+public class Mqtt
 {
     public static void main( String[] args )
     {
