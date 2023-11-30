@@ -37,10 +37,10 @@ public class ObjectGenerator extends InputOutputNode {
                 for (Entry<String, Object> entrySet : sensorInfo.entrySet()) {
                     JSONObject o = new JSONObject();
                     o.put("topic", topic + entrySet.getKey());
-                    JSONObject o2 = new JSONObject();
-                    o2.put("time", System.currentTimeMillis());
-                    o2.put("value", entrySet.getValue());
-                    o.put("payload", o2);
+                    JSONObject subObject = new JSONObject();
+                    subObject.put("time", System.currentTimeMillis());
+                    subObject.put("value", entrySet.getValue());
+                    o.put("payload", subObject);
                     output(0, new Message<JSONObject>(o));
                 }
             } catch (InterruptedException e) {
