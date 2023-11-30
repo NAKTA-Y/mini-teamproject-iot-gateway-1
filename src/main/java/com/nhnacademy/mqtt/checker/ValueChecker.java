@@ -1,6 +1,9 @@
 package com.nhnacademy.mqtt.checker;
 
 import org.json.JSONObject;
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 
 public class ValueChecker implements Checker {
@@ -17,9 +20,9 @@ public class ValueChecker implements Checker {
     @Override
     public boolean check(JSONObject jsonObject) {
         for (String value : valueList) {
-            if (jsonObject.getString(targetKey).contains(value))
-                return true; 
+            if (jsonObject.optString(targetKey).contains(value))
+                return true;
         }
-        return false; 
+        return false;
     }
 }

@@ -3,6 +3,9 @@ package com.nhnacademy.mqtt.node;
 import com.nhnacademy.mqtt.checker.Checker;
 import com.nhnacademy.mqtt.checker.ValueChecker;
 import com.nhnacademy.mqtt.message.Message;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.json.JSONObject;
 
 public class AppNameFilter extends InputOutputNode {
@@ -20,7 +23,7 @@ public class AppNameFilter extends InputOutputNode {
                 Message<JSONObject> receiveMessage = tryGetMessage();
                 JSONObject jsonObject = receiveMessage.getPayload();
 
-                if (valueChecker.check(jsonObject)) {
+                if (valueChecker.check(jsonObject.getJSONObject("deviceInfo"))) {
                     Message<JSONObject> sendMessage = new Message<JSONObject>(jsonObject);
                     output(0, sendMessage);
                 }
