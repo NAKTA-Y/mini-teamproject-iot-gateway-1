@@ -4,28 +4,22 @@ import org.json.JSONObject;
 import java.util.List;
 
 public class ValueChecker implements Checker {
-    private final List<String> valueList;
 
-    public ValueChecker(List<String> valueList) {
+    private final List<String> valueList;
+    private final String targetKey;
+
+    public ValueChecker(List<String> valueList, String targetKey) {
         this.valueList = valueList;
+        this.targetKey = targetKey;
     }
 
+    // appname, nullvalue, sensortype 의 공통 값은 아래와 같다.
     @Override
     public boolean check(JSONObject jsonObject) {
         for (String value : valueList) {
-            if (!containsValue(jsonObject, value)) {
-                return false; // 값이 누락
-            }
+            if (jsonObject.getString(targetKey).contains(value))
+                return true; 
         }
-        return true; // 모든 값이 존재
-    }
-
-    private boolean containsValue(JSONObject jsonObject, String value) {
-        for (String key : jsonObject.keySet()) {
-            if (jsonObject.get(key).toString().contains(value)) {
-                return true; // 값이 발견
-            }
-        }
-        return false; // 값이 발견되지 않음
+        return false; 
     }
 }
