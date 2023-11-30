@@ -39,6 +39,7 @@ public class Mqtt {
     private static final String PUBLISH_ID = "test";
     static String appName = "gyeongnam";
     static String sensorType = "humidity, temperature";
+    static final String APP_TARGET_KEY = "applicationName";
     static List<String> keyList = Arrays.asList("deviceInfo");
     static List<String> appNameList = Arrays.asList("applicationName");
 
@@ -62,7 +63,7 @@ public class Mqtt {
     private static void connect(MqttClient client) {
         MqttSubscriber mqttSubscribe = new MqttSubscriber(1, client);
         KeyFilter keyFilter = new KeyFilter(1, 1, new KeyChecker(keyList));
-        AppNameFilter appNameFilter = new AppNameFilter(1, 1, new ValueChecker(appNameList));
+        AppNameFilter appNameFilter = new AppNameFilter(1, 1, new ValueChecker(appNameList, APP_TARGET_KEY));
         ObjectGenerator objectGenerator = new ObjectGenerator(1, 1);
         NullValueFilter nullValueFilter = new NullValueFilter(1, 1, new NullValueChecker());
 
