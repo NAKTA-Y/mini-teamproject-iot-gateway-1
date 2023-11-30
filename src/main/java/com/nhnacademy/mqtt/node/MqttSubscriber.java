@@ -1,13 +1,8 @@
 package com.nhnacademy.mqtt.node;
 
-import java.nio.charset.Charset;
-import java.util.UUID;
-
-import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.json.JSONObject;
 
 import com.nhnacademy.mqtt.message.Message;
@@ -20,26 +15,18 @@ public class MqttSubscriber extends OutputNode {
     private MqttClient client;
     private MqttConnectOptions options;
 
-    public MqttSubscriber(int outputCount, MqttClient client) {
+    public MqttSubscriber(int outputCount, String serverURI, String clientId) throws MqttException {
         super(outputCount);
-        this.client = client;
-    }
-
-    public MqttSubscriber(int outputCount, MqttClient client, MqttConnectOptions options) {
-        super(outputCount);
-        this.client = client;
-        this.options = options;
+        this.client = new MqttClient(serverURI, clientId);
+        this.options = new MqttConnectOptions();
     }
 
     @Override
     public void run() {
         // TODO
         try {
-            if (options == null) {
-                client.connect();
-            } else {
-                client.connect(options);
-            }
+            options.setAutomaticReconnect(true);
+            client.connect(options);
 
             // subscribe 생성
             client.subscribe(TOPIC_FILTER, (topic, msg) -> {
@@ -52,9 +39,7 @@ public class MqttSubscriber extends OutputNode {
             });
 
         } catch (MqttException e) {
-            log.error("error MQTT message : {}", e.getMessage());
-        } catch (Exception e) {
-            log.error("error : {}", e.getMessage());
+            log.error("Mqtt Error: {}", e.getMessage());
         }
     }
 }

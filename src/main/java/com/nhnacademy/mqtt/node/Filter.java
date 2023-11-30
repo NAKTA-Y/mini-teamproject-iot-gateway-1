@@ -30,7 +30,8 @@ public class Filter extends InputOutputNode {
                 }
 
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                log.error("Thread error: {}", e.getMessage());
+                Thread.currentThread().interrupt();
             }
         }
     }

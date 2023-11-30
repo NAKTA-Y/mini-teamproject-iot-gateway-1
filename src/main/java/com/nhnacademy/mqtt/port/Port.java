@@ -5,18 +5,20 @@ import com.nhnacademy.mqtt.message.Message;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.json.JSONObject;
+
 public class Port {
-    BlockingQueue<Message> messageQueue;
+    BlockingQueue<Message<JSONObject>> messageQueue;
 
     public Port() {
         messageQueue = new LinkedBlockingQueue<>();
     }
 
-    public void put(Message message) throws InterruptedException {
+    public void put(Message<JSONObject> message) throws InterruptedException {
         messageQueue.put(message);
     }
 
-    public Message get() throws InterruptedException {
+    public Message<JSONObject> get() throws InterruptedException {
         return messageQueue.take();
     }
 }

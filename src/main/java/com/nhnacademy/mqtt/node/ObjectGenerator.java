@@ -1,12 +1,8 @@
 package com.nhnacademy.mqtt.node;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.nhnacademy.mqtt.CommonsTopicGenerator;
@@ -38,14 +34,13 @@ public class ObjectGenerator extends InputOutputNode {
                 for (Entry<String, Object> entrySet : sensorInfo.entrySet()) {
                     JSONObject o = new JSONObject();
                     o.put("topic", topic + entrySet.getKey());
-                    JSONObject subObject = new JSONObject();
                     o.put("time", System.currentTimeMillis() / 1000L);
                     o.put("value", entrySet.getValue());
-                    output(0, new Message<JSONObject>(o));
+                    output(0, new Message<>(o));
                 }
             } catch (InterruptedException e) {
-                log.error(e.getMessage());
-            } catch (JSONException ignore) {
+                log.error("Thread Error : {}", e.getMessage());
+                Thread.currentThread().interrupt();
             }
         }
     }
