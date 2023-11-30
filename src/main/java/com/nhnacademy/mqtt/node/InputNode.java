@@ -1,5 +1,7 @@
 package com.nhnacademy.mqtt.node;
 
+import org.json.JSONObject;
+
 import com.nhnacademy.mqtt.message.Message;
 import com.nhnacademy.mqtt.port.Port;
 
@@ -28,7 +30,7 @@ public abstract class InputNode extends Node implements Runnable {
         return inputPorts.length;
     }
 
-    protected Message tryGetMessage() throws InterruptedException {
+    protected Message<JSONObject> tryGetMessage() throws InterruptedException {
         return inputPorts[0].get();
     }
 }
