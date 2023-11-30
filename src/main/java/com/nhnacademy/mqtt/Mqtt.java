@@ -1,34 +1,22 @@
 package com.nhnacademy.mqtt;
 
-import java.io.FileReader;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import com.nhnacademy.mqtt.checker.KeyChecker;
+import com.nhnacademy.mqtt.checker.NullValueChecker;
+import com.nhnacademy.mqtt.checker.SubValueChecker;
+import com.nhnacademy.mqtt.checker.ValueChecker;
+import com.nhnacademy.mqtt.node.*;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.cli.*;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import com.nhnacademy.mqtt.checker.KeyChecker;
-import com.nhnacademy.mqtt.checker.NullValueChecker;
-import com.nhnacademy.mqtt.checker.ValueChecker;
-import com.nhnacademy.mqtt.node.AppNameFilter;
-import com.nhnacademy.mqtt.node.KeyFilter;
-import com.nhnacademy.mqtt.node.MqttPublisher;
-import com.nhnacademy.mqtt.node.MqttSubscriber;
-import com.nhnacademy.mqtt.node.NullValueFilter;
-import com.nhnacademy.mqtt.node.ObjectGenerator;
-import com.nhnacademy.mqtt.node.SensorTypeFilter;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.FileReader;
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 1. 디폴트값 설정
@@ -45,6 +33,7 @@ public class Mqtt {
     static String appName = "NHNAcademyEMS";
     static String sensorType = "humidity,temperature";
     static List<String> keyList = Arrays.asList("deviceInfo");
+    static List<String> subKeyList = Arrays.asList("deviceInfo");
     static List<String> appNameList;
     static List<String> sensorTypeList;
 
@@ -65,11 +54,11 @@ public class Mqtt {
 
     private static void connect(MqttClient subClient, MqttClient pubClient, MqttConnectOptions options) {
         MqttSubscriber mqttSubscribe = new MqttSubscriber(1, subClient, options);
-        KeyFilter keyFilter = new KeyFilter(1, 1, new KeyChecker(keyList));
-        AppNameFilter appNameFilter = new AppNameFilter(1, 1, new ValueChecker(appNameList, APP_TARGET_KEY));
+        Filter keyFilter = new Filter(1, 1, new KeyChecker(keyList));
+        Filter appNameFilter = new Filter(1, 1, new SubValueChecker(appNameList, APP_TARGET_KEY, subKeyList));
         ObjectGenerator objectGenerator = new ObjectGenerator(1, 1);
-        NullValueFilter nullValueFilter = new NullValueFilter(1, 1, new NullValueChecker());
-        SensorTypeFilter sensorTypeFilter = new SensorTypeFilter(1, 1,
+        Filter nullValueFilter = new Filter(1, 1, new NullValueChecker());
+        Filter sensorTypeFilter = new Filter(1, 1,
                 new ValueChecker(sensorTypeList, SENSOR_TARGET_KEY));
         MqttPublisher mqttPublisher = new MqttPublisher(1, pubClient);
 
