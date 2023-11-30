@@ -29,7 +29,6 @@ import java.util.UUID;
  */
 @Slf4j
 public class Mqtt {
-    private static final String PUBLISH_ID = "test";
     static final String APP_TARGET_KEY = "applicationName";
     static final String SENSOR_TARGET_KEY = "topic";
     static final String SUBSCRIBE_SERVER_URI = "tcp://ems.nhnacademy.com";
@@ -56,7 +55,7 @@ public class Mqtt {
             Filter nullValueFilter = new Filter(1, 1, new NullValueChecker());
             Filter sensorTypeFilter = new Filter(1, 1,
                     new ValueChecker(sensorTypeList, SENSOR_TARGET_KEY));
-            MqttPublisher mqttPublisher = new MqttPublisher(1, PUBLISH_ID, UUID.randomUUID().toString());
+            MqttPublisher mqttPublisher = new MqttPublisher(1, PUBLISH_SERVER_URI, UUID.randomUUID().toString());
 
             mqttSubscribe.connect(0, keyFilter.getInputPort(0));
             keyFilter.connect(0, appNameFilter.getInputPort(0));

@@ -22,8 +22,6 @@ public class Filter extends InputOutputNode {
 
                 JSONObject jsonObject = receiveMessage.getPayload();
 
-                log.info("{}", jsonObject);
-
                 if (keyChekcer.check(jsonObject)) {
                     Message<JSONObject> sendMessage = new Message<>(jsonObject);
                     output(0, sendMessage);
