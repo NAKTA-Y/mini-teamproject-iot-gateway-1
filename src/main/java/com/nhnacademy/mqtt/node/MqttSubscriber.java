@@ -1,13 +1,8 @@
 package com.nhnacademy.mqtt.node;
 
-import java.nio.charset.Charset;
-import java.util.UUID;
-
-import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.json.JSONObject;
 
 import com.nhnacademy.mqtt.message.Message;
