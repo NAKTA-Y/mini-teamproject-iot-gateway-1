@@ -1,5 +1,6 @@
 package com.nhnacademy.mqtt.node;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -38,9 +39,8 @@ public class ObjectGenerator extends InputOutputNode {
                     JSONObject o = new JSONObject();
                     o.put("topic", topic + entrySet.getKey());
                     JSONObject subObject = new JSONObject();
-                    subObject.put("time", System.currentTimeMillis());
-                    subObject.put("value", entrySet.getValue());
-                    o.put("payload", subObject);
+                    o.put("time", System.currentTimeMillis() / 1000L);
+                    o.put("value", entrySet.getValue());
                     output(0, new Message<JSONObject>(o));
                 }
             } catch (InterruptedException e) {

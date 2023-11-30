@@ -22,9 +22,11 @@ import com.nhnacademy.mqtt.checker.NullValueChecker;
 import com.nhnacademy.mqtt.checker.ValueChecker;
 import com.nhnacademy.mqtt.node.AppNameFilter;
 import com.nhnacademy.mqtt.node.KeyFilter;
+import com.nhnacademy.mqtt.node.MqttPublisher;
 import com.nhnacademy.mqtt.node.MqttSubscriber;
 import com.nhnacademy.mqtt.node.NullValueFilter;
 import com.nhnacademy.mqtt.node.ObjectGenerator;
+import com.nhnacademy.mqtt.node.SensorTypeFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,40 +39,54 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Mqtt {
     private static final String PUBLISH_ID = "test";
-    static String appName = "gyeongnam";
-    static String sensorType = "humidity, temperature";
     static final String APP_TARGET_KEY = "applicationName";
+    static final String SENSOR_TARGET_KEY = "topic";
+
+    static String appName = "NHNAcademyEMS";
+    static String sensorType = "humidity,temperature";
     static List<String> keyList = Arrays.asList("deviceInfo");
-    static List<String> appNameList = Arrays.asList("applicationName");
+    static List<String> appNameList;
+    static List<String> sensorTypeList;
 
     public static void main(String[] args) {
         setCommentLineArgument(args);
 
         try {
-            MqttClient client = new MqttClient("tcp://ems.nhnacademy.com:1883", PUBLISH_ID);
+            MqttClient subClient = new MqttClient("tcp://ems.nhnacademy.com", PUBLISH_ID);
+            MqttClient pubClient = new MqttClient("tcp://localhost:1883", PUBLISH_ID);
             MqttConnectOptions options = new MqttConnectOptions();
             options.setAutomaticReconnect(true);
-            options.setConnectionTimeout(100);
 
-            client.connect(options);
-
-            connect(client);
+            connect(subClient, pubClient, options);
         } catch (MqttException e) {
             log.error("{}", e.getMessage());
         }
     }
 
-    private static void connect(MqttClient client) {
-        MqttSubscriber mqttSubscribe = new MqttSubscriber(1, client);
+    private static void connect(MqttClient subClient, MqttClient pubClient, MqttConnectOptions options) {
+        MqttSubscriber mqttSubscribe = new MqttSubscriber(1, subClient, options);
         KeyFilter keyFilter = new KeyFilter(1, 1, new KeyChecker(keyList));
         AppNameFilter appNameFilter = new AppNameFilter(1, 1, new ValueChecker(appNameList, APP_TARGET_KEY));
         ObjectGenerator objectGenerator = new ObjectGenerator(1, 1);
         NullValueFilter nullValueFilter = new NullValueFilter(1, 1, new NullValueChecker());
+        SensorTypeFilter sensorTypeFilter = new SensorTypeFilter(1, 1,
+                new ValueChecker(sensorTypeList, SENSOR_TARGET_KEY));
+        MqttPublisher mqttPublisher = new MqttPublisher(1, pubClient);
 
         mqttSubscribe.connect(0, keyFilter.getInputPort(0));
         keyFilter.connect(0, appNameFilter.getInputPort(0));
         appNameFilter.connect(0, objectGenerator.getInputPort(0));
         objectGenerator.connect(0, nullValueFilter.getInputPort(0));
+        nullValueFilter.connect(0, sensorTypeFilter.getInputPort(0));
+        sensorTypeFilter.connect(0, mqttPublisher.getInputPort(0));
+
+        mqttSubscribe.start();
+        keyFilter.start();
+        appNameFilter.start();
+        objectGenerator.start();
+        nullValueFilter.start();
+        sensorTypeFilter.start();
+        mqttPublisher.start();
     }
 
     // command line argument
@@ -101,8 +117,8 @@ public class Mqtt {
         if (cmd.hasOption("s") && cmd.getOptionValue("s") != null) {
             sensorType = cmd.getOptionValue("s");
         }
-        System.out.println("appName : " + appName);
-        System.out.println("sensor : " + sensorType);
+        appNameList = Arrays.asList(appName.split(","));
+        sensorTypeList = Arrays.asList(sensorType.split(","));
     }
 
     // JSON 파일 읽기
