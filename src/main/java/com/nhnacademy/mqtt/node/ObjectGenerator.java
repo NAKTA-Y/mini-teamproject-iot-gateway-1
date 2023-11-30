@@ -15,36 +15,38 @@ import com.nhnacademy.mqtt.message.Message;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ObjectGenerator extends InputOutputNode{
+public class ObjectGenerator extends InputOutputNode {
     CommonsTopicGenerator topicGenerator;
     TypeSplitter typeSplitter;
 
-    public ObjectGenerator(int inputCount,int outputCount){
+    public ObjectGenerator(int inputCount, int outputCount) {
         super(inputCount, outputCount);
         topicGenerator = new CommonsTopicGenerator();
         typeSplitter = new TypeSplitter();
     }
 
     @Override
-    public void run(){
+    public void run() {
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                Message<JSONObject> message = tryGetMessage(); // input 메시지 받아오기
+                String topic = topicGenerator.generate(message.getPayload()).toString(); // 토픽 생성
 
-        try {
-            Message<JSONObject> message = tryGetMessage();  // input 메시지 받아오기
-            String topic = topicGenerator.generate(message.getPayload()).toString();    // 토픽 생성
+                Map<String, Object> sensorInfo = typeSplitter.generate(message.getPayload()); // 센서 값 받기
 
-            Map<String, Object> sensorInfo = typeSplitter.generate(message.getPayload());   // 센서 값 받기
-
-            for (Entry<String, Object> entrySet : sensorInfo.entrySet()) {
-                JSONObject o = new JSONObject();
-                o.put("topic", topic + entrySet.getKey());
-                JSONObject o2 =  new JSONObject();
-                o2.put("time", System.currentTimeMillis());
-                o2.put("value", entrySet.getValue());
-                o.put("payload", o2); 
-                output(0, new Message<JSONObject>(o));
+                for (Entry<String, Object> entrySet : sensorInfo.entrySet()) {
+                    JSONObject o = new JSONObject();
+                    o.put("topic", topic + entrySet.getKey());
+                    JSONObject o2 = new JSONObject();
+                    o2.put("time", System.currentTimeMillis());
+                    o2.put("value", entrySet.getValue());
+                    o.put("payload", o2);
+                    output(0, new Message<JSONObject>(o));
+                }
+            } catch (InterruptedException e) {
+                log.error(e.getMessage());
+            } catch (JSONException ignore) {
             }
-        } catch (InterruptedException e) {
-            log.error(e.getMessage());
-        } catch (JSONException ignore) {}
+        }
     }
 }

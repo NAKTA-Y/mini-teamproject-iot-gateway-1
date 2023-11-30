@@ -18,15 +18,17 @@ public class NullValueFilter extends InputOutputNode {
 
     @Override
     public void run() {
-        try {
-            Message<JSONObject> message = tryGetMessage();
-            if (checker.check(message.getPayload())) {
-                output(0, message);
-            } else {
-                log.error("error message: value 값이 null입니다.");
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                Message<JSONObject> message = tryGetMessage();
+                if (checker.check(message.getPayload())) {
+                    output(0, message);
+                } else {
+                    log.error("error message: value 값이 null입니다.");
+                }
+            } catch (InterruptedException e) {
+                log.error("error message", e.getMessage());
             }
-        } catch (InterruptedException e) {
-            log.error("error message", e.getMessage());
         }
     }
 }
