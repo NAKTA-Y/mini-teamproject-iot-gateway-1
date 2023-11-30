@@ -12,18 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MqttPublisher extends InputNode {
-    MqttClient client;
+    private MqttClient client;
     MqttConnectOptions options;
 
-    public MqttPublisher(int inputCount, MqttClient client) {
+    public MqttPublisher(int inputCount, String serverURI, String clientId) throws MqttException {
         super(inputCount);
-        this.client = client;
-    }
-
-    public MqttPublisher(int inputCount, MqttClient client, MqttConnectOptions options) {
-        super(inputCount);
-        this.client = client;
-        this.options = options;
+        this.client = new MqttClient(serverURI, clientId);
+        this.options = new MqttConnectOptions();
     }
 
     @Override
@@ -31,22 +26,19 @@ public class MqttPublisher extends InputNode {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 Message<JSONObject> message = tryGetMessage();
-                if (options == null) {
-                    client.connect();
-                } else {
-                    client.connect(options);
-                }
+                options.setAutomaticReconnect(true);
+                client.connect();
 
                 JSONObject jsonObject = message.getPayload();
-                MqttMessage mqttMessage = new MqttMessage(jsonObject.toString().getBytes());
                 log.info("{}", jsonObject);
+                MqttMessage mqttMessage = new MqttMessage(jsonObject.toString().getBytes());
                 client.publish(jsonObject.getString("topic"), mqttMessage);
 
                 client.disconnect();
             } catch (MqttException e) {
-                log.error("error message : {}", e.getMessage());
+                log.error("Mqtt Error : {}", e.getMessage());
             } catch (InterruptedException e) {
-                log.error("error message : {}", e.getMessage());
+                log.error("Thread Error : {}", e.getMessage());
                 Thread.currentThread().interrupt();
             }
         }

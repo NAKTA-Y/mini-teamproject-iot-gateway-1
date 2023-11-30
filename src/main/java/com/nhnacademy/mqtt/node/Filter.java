@@ -2,11 +2,14 @@ package com.nhnacademy.mqtt.node;
 
 import com.nhnacademy.mqtt.checker.Checker;
 import com.nhnacademy.mqtt.message.Message;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 
-public class KeyFilter extends InputOutputNode {
+@Slf4j
+public class Filter extends InputOutputNode {
     private final Checker keyChekcer;
-    public KeyFilter(int inputCount, int outputCount, Checker keyChekcer) {
+
+    public Filter(int inputCount, int outputCount, Checker keyChekcer) {
         super(inputCount, outputCount);
         this.keyChekcer = keyChekcer;
     }
@@ -25,7 +28,8 @@ public class KeyFilter extends InputOutputNode {
                 }
 
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                log.error("Thread error: {}", e.getMessage());
+                Thread.currentThread().interrupt();
             }
         }
     }

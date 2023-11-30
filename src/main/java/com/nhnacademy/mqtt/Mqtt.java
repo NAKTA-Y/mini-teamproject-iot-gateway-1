@@ -1,34 +1,25 @@
 package com.nhnacademy.mqtt;
 
-import java.io.FileReader;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
-
 import com.nhnacademy.mqtt.checker.KeyChecker;
 import com.nhnacademy.mqtt.checker.NullValueChecker;
+import com.nhnacademy.mqtt.checker.SubValueChecker;
 import com.nhnacademy.mqtt.checker.ValueChecker;
-import com.nhnacademy.mqtt.node.AppNameFilter;
-import com.nhnacademy.mqtt.node.KeyFilter;
-import com.nhnacademy.mqtt.node.MqttPublisher;
-import com.nhnacademy.mqtt.node.MqttSubscriber;
-import com.nhnacademy.mqtt.node.NullValueFilter;
-import com.nhnacademy.mqtt.node.ObjectGenerator;
-import com.nhnacademy.mqtt.node.SensorTypeFilter;
-
+import com.nhnacademy.mqtt.node.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.cli.*;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * 1. 디폴트값 설정
@@ -38,58 +29,54 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class Mqtt {
-    private static final String PUBLISH_ID = "test";
     static final String APP_TARGET_KEY = "applicationName";
     static final String SENSOR_TARGET_KEY = "topic";
+    static final String SUBSCRIBE_SERVER_URI = "tcp://ems.nhnacademy.com";
+    static final String PUBLISH_SERVER_URI = "tcp://localhost";
 
     static String appName = "NHNAcademyEMS";
     static String sensorType = "humidity,temperature";
     static List<String> keyList = Arrays.asList("deviceInfo");
+    static List<String> subKeyList = Arrays.asList("deviceInfo");
     static List<String> appNameList;
     static List<String> sensorTypeList;
 
     public static void main(String[] args) {
         setCommentLineArgument(args);
+        connect();
+    }
 
+    private static void connect() {
         try {
-            MqttClient subClient = new MqttClient("tcp://ems.nhnacademy.com", PUBLISH_ID);
-            MqttClient pubClient = new MqttClient("tcp://localhost:1883", PUBLISH_ID);
-            MqttConnectOptions options = new MqttConnectOptions();
-            options.setAutomaticReconnect(true);
+            MqttSubscriber mqttSubscribe = new MqttSubscriber(1, SUBSCRIBE_SERVER_URI, UUID.randomUUID().toString());
+            Filter keyFilter = new Filter(1, 1, new KeyChecker(keyList));
+            Filter appNameFilter = new Filter(1, 1, new SubValueChecker(appNameList, APP_TARGET_KEY, subKeyList));
+            ObjectGenerator objectGenerator = new ObjectGenerator(1, 1);
+            Filter nullValueFilter = new Filter(1, 1, new NullValueChecker());
+            Filter sensorTypeFilter = new Filter(1, 1,
+                    new ValueChecker(sensorTypeList, SENSOR_TARGET_KEY));
+            MqttPublisher mqttPublisher = new MqttPublisher(1, PUBLISH_SERVER_URI, UUID.randomUUID().toString());
 
-            connect(subClient, pubClient, options);
+            mqttSubscribe.connect(0, keyFilter.getInputPort(0));
+            keyFilter.connect(0, appNameFilter.getInputPort(0));
+            appNameFilter.connect(0, objectGenerator.getInputPort(0));
+            objectGenerator.connect(0, nullValueFilter.getInputPort(0));
+            nullValueFilter.connect(0, sensorTypeFilter.getInputPort(0));
+            sensorTypeFilter.connect(0, mqttPublisher.getInputPort(0));
+
+            mqttSubscribe.start();
+            keyFilter.start();
+            appNameFilter.start();
+            objectGenerator.start();
+            nullValueFilter.start();
+            sensorTypeFilter.start();
+            mqttPublisher.start();
         } catch (MqttException e) {
-            log.error("{}", e.getMessage());
+            log.error("Mqtt 클라이언트 생성 실패: {}", e.getMessage());
         }
     }
 
-    private static void connect(MqttClient subClient, MqttClient pubClient, MqttConnectOptions options) {
-        MqttSubscriber mqttSubscribe = new MqttSubscriber(1, subClient, options);
-        KeyFilter keyFilter = new KeyFilter(1, 1, new KeyChecker(keyList));
-        AppNameFilter appNameFilter = new AppNameFilter(1, 1, new ValueChecker(appNameList, APP_TARGET_KEY));
-        ObjectGenerator objectGenerator = new ObjectGenerator(1, 1);
-        NullValueFilter nullValueFilter = new NullValueFilter(1, 1, new NullValueChecker());
-        SensorTypeFilter sensorTypeFilter = new SensorTypeFilter(1, 1,
-                new ValueChecker(sensorTypeList, SENSOR_TARGET_KEY));
-        MqttPublisher mqttPublisher = new MqttPublisher(1, pubClient);
-
-        mqttSubscribe.connect(0, keyFilter.getInputPort(0));
-        keyFilter.connect(0, appNameFilter.getInputPort(0));
-        appNameFilter.connect(0, objectGenerator.getInputPort(0));
-        objectGenerator.connect(0, nullValueFilter.getInputPort(0));
-        nullValueFilter.connect(0, sensorTypeFilter.getInputPort(0));
-        sensorTypeFilter.connect(0, mqttPublisher.getInputPort(0));
-
-        mqttSubscribe.start();
-        keyFilter.start();
-        appNameFilter.start();
-        objectGenerator.start();
-        nullValueFilter.start();
-        sensorTypeFilter.start();
-        mqttPublisher.start();
-    }
-
-    // command line argument
+    // command line arguments
     public static void setCommentLineArgument(String[] args) {
         Options options = new Options();
         options.addOption("an", "an", true, "filter app name");
@@ -100,8 +87,8 @@ public class Mqtt {
         try {
             CommandLine cmd = parser.parse(options, args);
             hasOption(cmd);
-        } catch (ParseException e) {
-            log.error("{}", e.getMessage());
+        } catch (org.apache.commons.cli.ParseException e) {
+            log.error("parser Error: {}", e.getMessage());
         }
 
     }
@@ -131,8 +118,14 @@ public class Mqtt {
             appName = (String) jsonObject.get("appName");
             sensorType = (String) jsonObject.get("snesorType");
 
-        } catch (Exception e) {
-            log.error("{}", e.getMessage());
+        } catch (JSONException e) {
+            log.error("JSON Error: {}", e.getMessage());
+        } catch (FileNotFoundException e) {
+            log.error("File Error: {}", e.getMessage());
+        } catch (IOException e) {
+            log.error("IO Error: {}", e.getMessage());
+        } catch (ParseException e) {
+            log.error("parser Error: {}", e.getMessage());
         }
     }
 }
