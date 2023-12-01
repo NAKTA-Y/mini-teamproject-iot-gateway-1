@@ -1,15 +1,14 @@
 package com.nhnacademy.mqtt.node;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.json.JSONObject;
-
 import com.nhnacademy.mqtt.CommonsTopicGenerator;
 import com.nhnacademy.mqtt.TypeSplitter;
 import com.nhnacademy.mqtt.message.Message;
-
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Map;
+import java.util.Map.Entry;
 
 @Slf4j
 public class ObjectGenerator extends InputOutputNode {
@@ -41,6 +40,8 @@ public class ObjectGenerator extends InputOutputNode {
             } catch (InterruptedException e) {
                 log.error("Thread Error : {}", e.getMessage());
                 Thread.currentThread().interrupt();
+            } catch (JSONException e){
+                log.warn("JSON Error: {}", e.getMessage());
             }
         }
     }
