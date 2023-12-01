@@ -1,78 +1,28 @@
 {
-    "mqttIn": {
-        "type": "MqttSubscriber",
-        "parameters": {
-            "outputCount": 1,
-            "serverURI": "tcp://ems.nhnacademy.com"
-        }
+    "MqttSubscriber": {
+        "serverURI": "tcp://ems.nhnacademy.com"
     },
+
     "KeyFilter": {
-        "type": "Filter",
-        "parameters": {
-            "inputCount": 1,
-            "outputCount": 1,
-            "Checker": {
-                "type": "KeyChecker",
-                "parameters": {
-                    "keyList": ["deviceInfo"]
-                }
-            }
-        }
+        "keyList": ["deviceInfo"]
     },
+
     "AppNameFilter": {
-        "type": "Filter",
-        "parameters": {
-            "inputCount": 1,
-            "outputCount": 1,
-            "Checker": {
-                "type": "SubValueChecker",
-                "parameters": {
-                    "valueList": ["NHNAcademyEMS"],
-                    "targetKey": "applicationName",
-                    "objectKeyNameList": ["deviceInfo"]
-                }
-            }
-        }
+        "valueList": ["NHNAcademyEMS"],
+        "targetKey": "applicationName",
+        "objectKeyNameList": ["deviceInfo"]
     },
-    "ObjectGenerator": {
-        "type": "ObjectGenerator",
-        "parameters": {
-            "inputCount": 1,
-            "outputCount": 1
-        }
-    },
+
     "NullValueFilter": {
-        "type": "Filter",
-        "parameters": {
-            "inputCount": 1,
-            "outputCount": 1,
-            "Checker": {
-                "type": "NotNullValueChecker",
-                "parameters": {
-                    "targetKey": "value"
-                }
-            }
-        }
+        "targetKey": "value"
     },
+
     "SensorTypeFilter": {
-        "type": "Filter",
-        "parameters": {
-            "inputCount": 1,
-            "outputCount": 1,
-            "Checker": {
-                "type": "ValueChecker",
-                "parameters": {
-                    "valueList": ["temperature", "humidity"],
-                    "targetKey": "topic"
-                }
-            }
-        }
+        "valueList": ["temperature", "humidity"],
+        "targetKey": "topic"
     },
-    "mqttOut": {
-        "type": "MqttPublisher",
-        "parameters": {
-            "inputCount": 1,
-            "serverURI": "tcp://localhost"
-        }
+
+    "MqttPublisher": {
+        "serverURI": "tcp://localhost"
     }
 }

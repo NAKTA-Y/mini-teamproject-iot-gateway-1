@@ -62,7 +62,7 @@
             "Checker": {
                 "type": "ValueChecker",
                 "parameters": {
-                    "valueList": ["temperature", "humidity"],
+                    "valueList": ["co2"],
                     "targetKey": "topic"
                 }
             }
