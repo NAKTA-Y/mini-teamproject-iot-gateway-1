@@ -1,4 +1,78 @@
-{
-    "snesorType": "humidity",
-    "appName": "gyeongnam"
-}
+[
+    {
+        "type": "MqttSubscriber",
+        "parameters": {
+            "outputCount": 1,
+            "serverURI": "tcp://ems.nhnacademy.com"
+        }
+    },
+    {
+        "type": "Filter",
+        "parameters": {
+            "inputCount": 1,
+            "outputCount": 1,
+            "Checker": {
+                "type": "KeyChecker",
+                "parameters": {
+                    "keyList": ["deviceInfo"]
+                }
+            }
+        }
+    },
+    {
+        "type": "Filter",
+        "parameters": {
+            "inputCount": 1,
+            "outputCount": 1,
+            "Checker": {
+                "type": "SubValueChecker",
+                "parameters": {
+                    "valueList": ["NHNAcademyEMS"],
+                    "targetKey": "applicationName",
+                    "objectKeyNameList": ["deviceInfo"]
+                }
+            }
+        }
+    },
+    {
+        "type": "ObjectGenerrator",
+        "parameters": {
+            "inputCount": 1,
+            "outputCount": 1
+        }
+    },
+    {
+        "type": "Filter",
+        "parameters": {
+            "inputCount": 1,
+            "outputCount": 1,
+            "Checker": {
+                "type": "NotNullValueChecker",
+                "parameters": {
+                    "targetKey": "value"
+                }
+            }
+        }
+    },
+    {
+        "type": "Filter",
+        "parameters": {
+            "inputCount": 1,
+            "outputCount": 1,
+            "Checker": {
+                "type": "ValueChecker",
+                "parameters": {
+                    "valueList": ["temperature", "humidity"],
+                    "targetKey": "topic"
+                }
+            }
+        }
+    },
+    {
+        "type": "MqttPublisher",
+        "parameters": {
+            "inputCount": 1,
+            "serverURI": "tcp://localhost"
+        }
+    }
+]
