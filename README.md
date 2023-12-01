@@ -9,7 +9,7 @@
 
 미니프로젝트 시작을 앞서 Node 구성은 아래와 같이 작성하였다.
 # MQTT 노드 (수정요)
-<img src="imgs/mqtt.jpeg" height=400 width=900></img>
+<img src="imgs/mqtt.drawio.png" height=400 width=900></img>
 
 <br/>
 <br/>
