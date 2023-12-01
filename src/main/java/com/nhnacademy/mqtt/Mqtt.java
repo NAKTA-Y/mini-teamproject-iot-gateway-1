@@ -1,7 +1,7 @@
 package com.nhnacademy.mqtt;
 
 import com.nhnacademy.mqtt.checker.KeyChecker;
-import com.nhnacademy.mqtt.checker.NullValueChecker;
+import com.nhnacademy.mqtt.checker.NotNullValueChecker;
 import com.nhnacademy.mqtt.checker.SubValueChecker;
 import com.nhnacademy.mqtt.checker.ValueChecker;
 import com.nhnacademy.mqtt.node.*;
@@ -52,7 +52,7 @@ public class Mqtt {
             Filter keyFilter = new Filter(1, 1, new KeyChecker(keyList));
             Filter appNameFilter = new Filter(1, 1, new SubValueChecker(appNameList, APP_TARGET_KEY, subKeyList));
             ObjectGenerator objectGenerator = new ObjectGenerator(1, 1);
-            Filter nullValueFilter = new Filter(1, 1, new NullValueChecker());
+            Filter nullValueFilter = new Filter(1, 1, new NotNullValueChecker("value"));
             Filter sensorTypeFilter = new Filter(1, 1,
                     new ValueChecker(sensorTypeList, SENSOR_TARGET_KEY));
             MqttPublisher mqttPublisher = new MqttPublisher(1, PUBLISH_SERVER_URI, UUID.randomUUID().toString());
