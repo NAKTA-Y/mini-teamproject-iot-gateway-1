@@ -1,12 +1,12 @@
-[
-    {
+{
+    "mqttIn": {
         "type": "MqttSubscriber",
         "parameters": {
             "outputCount": 1,
             "serverURI": "tcp://ems.nhnacademy.com"
         }
     },
-    {
+    "KeyFilter": {
         "type": "Filter",
         "parameters": {
             "inputCount": 1,
@@ -19,7 +19,7 @@
             }
         }
     },
-    {
+    "AppNameFilter": {
         "type": "Filter",
         "parameters": {
             "inputCount": 1,
@@ -34,14 +34,14 @@
             }
         }
     },
-    {
-        "type": "ObjectGenerrator",
+    "ObjectGenerator": {
+        "type": "ObjectGenerator",
         "parameters": {
             "inputCount": 1,
             "outputCount": 1
         }
     },
-    {
+    "NullValueFilter": {
         "type": "Filter",
         "parameters": {
             "inputCount": 1,
@@ -54,7 +54,7 @@
             }
         }
     },
-    {
+    "SensorTypeFilter": {
         "type": "Filter",
         "parameters": {
             "inputCount": 1,
@@ -68,11 +68,11 @@
             }
         }
     },
-    {
+    "mqttOut": {
         "type": "MqttPublisher",
         "parameters": {
             "inputCount": 1,
             "serverURI": "tcp://localhost"
         }
     }
-]
+}
