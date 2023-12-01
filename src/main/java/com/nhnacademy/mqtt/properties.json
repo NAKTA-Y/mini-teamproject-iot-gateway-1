@@ -1,0 +1,28 @@
+{
+    "MqttSubscriber": {
+        "serverURI": "tcp://ems.nhnacademy.com"
+    },
+
+    "KeyFilter": {
+        "keyList": ["deviceInfo"]
+    },
+
+    "AppNameFilter": {
+        "valueList": ["NHNAcademyEMS"],
+        "targetKey": "applicationName",
+        "objectKeyNameList": ["deviceInfo"]
+    },
+
+    "NullValueFilter": {
+        "targetKey": "value"
+    },
+
+    "SensorTypeFilter": {
+        "valueList": ["temperature", "humidity"],
+        "targetKey": "topic"
+    },
+
+    "MqttPublisher": {
+        "serverURI": "tcp://localhost"
+    }
+}

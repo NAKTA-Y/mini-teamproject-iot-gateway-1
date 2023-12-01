@@ -12,8 +12,8 @@ import java.util.Map.Entry;
 
 @Slf4j
 public class ObjectGenerator extends InputOutputNode {
-    CommonsTopicGenerator topicGenerator;
-    TypeSplitter typeSplitter;
+    private CommonsTopicGenerator topicGenerator;
+    private TypeSplitter typeSplitter;
 
     public ObjectGenerator(int inputCount, int outputCount) {
         super(inputCount, outputCount);
@@ -40,7 +40,7 @@ public class ObjectGenerator extends InputOutputNode {
             } catch (InterruptedException e) {
                 log.error("Thread Error : {}", e.getMessage());
                 Thread.currentThread().interrupt();
-            } catch (JSONException e){
+            } catch (JSONException e) {
                 log.warn("JSON Error: {}", e.getMessage());
             }
         }
