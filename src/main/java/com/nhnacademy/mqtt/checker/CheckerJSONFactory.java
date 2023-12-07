@@ -17,44 +17,38 @@ public class CheckerJSONFactory {
     }
 
     public static Checker create(JSONObject checkerInfo) {
+        List<String> targetList = new ArrayList<>();
+        List<String> subKeyList = new ArrayList<>();
+
         // 분기 처리
         if (checkerInfo.optString("type").equals("KeyChecker")) {
-            List<String> keyList = new ArrayList<>();
 
             for (Object o : checkerInfo.getJSONObject(PARAMETERS).getJSONArray("keyList")) {
-                keyList.add((String) o);
+                targetList.add((String) o);
             }
 
-            return new KeyChecker(keyList);
-
-        } else if (checkerInfo.optString("type").equals("SubValueChecker")) {
-            List<String> valueList = new ArrayList<>();
-            List<String> objectKeyNameList = new ArrayList<>();
-            String targetKey = checkerInfo.optString(TARGET_KEY);
-
-            for (Object o : checkerInfo.getJSONObject(PARAMETERS).getJSONArray("valueList")) {
-                valueList.add((String) o);
+            for (Object o : checkerInfo.getJSONObject(PARAMETERS).getJSONArray("subKeyList")) {
+                subKeyList.add((String) o);
             }
 
-            for (Object o : checkerInfo.getJSONObject(PARAMETERS).getJSONArray("objectKeyNameList")) {
-                objectKeyNameList.add((String) o);
-            }
-
-            return new SubValueChecker(valueList, targetKey, objectKeyNameList);
-
-        } else if (checkerInfo.optString("type").equals("NotNullValueChecker")) {
-            return new NotNullValueChecker(checkerInfo.getJSONObject(PARAMETERS).optString(TARGET_KEY));
+            return new KeyChecker(targetList, subKeyList);
 
         } else if (checkerInfo.optString("type").equals("ValueChecker")) {
-            List<String> valueList = new ArrayList<>();
+
             for (Object o : checkerInfo.getJSONObject(PARAMETERS).getJSONArray("valueList")) {
-                valueList.add((String) o);
+                targetList.add((String) o);
             }
+
+            for (Object o : checkerInfo.getJSONObject(PARAMETERS).getJSONArray("subKeyList")) {
+                subKeyList.add((String) o);
+            }
+
             String targetKey = checkerInfo.getJSONObject(PARAMETERS).optString(TARGET_KEY);
 
-            return new ValueChecker(valueList, targetKey);
+            return new ValueChecker(targetKey, targetList, subKeyList);
 
         }
+
         return null;
     }
 }

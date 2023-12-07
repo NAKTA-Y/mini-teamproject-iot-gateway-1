@@ -1,17 +1,16 @@
 package com.nhnacademy.mqtt.node;
 
+import com.nhnacademy.mqtt.message.Message;
+
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONObject;
 
-import com.nhnacademy.mqtt.message.Message;
-
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
-public class MqttPublisher extends InputNode {
+public class MqttPublisher extends InputNode<Message> {
     private MqttClient client;
     MqttConnectOptions options;
 
@@ -25,11 +24,11 @@ public class MqttPublisher extends InputNode {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                Message<JSONObject> message = tryGetMessage();
                 options.setAutomaticReconnect(true);
                 client.connect();
 
-                JSONObject jsonObject = message.getPayload();
+                Message message = tryGetMessage();
+                JSONObject jsonObject = (JSONObject) message.getPayload();
                 log.info("{}", jsonObject);
                 MqttMessage mqttMessage = new MqttMessage(jsonObject.toString().getBytes());
                 client.publish(jsonObject.getString("topic"), mqttMessage);
