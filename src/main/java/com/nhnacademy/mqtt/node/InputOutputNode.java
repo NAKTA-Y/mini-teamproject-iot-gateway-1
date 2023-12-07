@@ -1,22 +1,20 @@
 package com.nhnacademy.mqtt.node;
 
-import org.json.JSONObject;
-
-import com.nhnacademy.mqtt.message.Message;
 import com.nhnacademy.mqtt.port.Port;
 
-public abstract class InputOutputNode extends Node implements Runnable {
+public abstract class InputOutputNode<T> extends Node implements Runnable {
     private final Thread thread;
-    private final Port[] inputPorts;
-    private final Port[] outputPorts;
+    private final Port<T>[] inputPorts;
+    private final Port<T>[] outputPorts;
 
+    @SuppressWarnings("unchecked")
     protected InputOutputNode(int inputCount, int outputCount) {
         thread = new Thread(this);
         inputPorts = new Port[inputCount];
         outputPorts = new Port[outputCount];
 
         for (int i = 0; i < inputCount; i++) {
-            inputPorts[i] = new Port();
+            inputPorts[i] = new Port<>();
         }
     }
 
@@ -24,23 +22,19 @@ public abstract class InputOutputNode extends Node implements Runnable {
         thread.start();
     }
 
-    public Port getInputPort(int index) {
+    public Port<T> getInputPort(int index) {
         return inputPorts[index];
     }
 
-    public int getInputPortCount() {
-        return inputPorts.length;
-    }
-
-    public void connect(int index, Port inputPort) {
+    public void connect(int index, Port<T> inputPort) {
         outputPorts[index] = inputPort;
     }
 
-    protected void output(int index, Message<JSONObject> message) throws InterruptedException {
+    protected void output(int index, T message) throws InterruptedException {
         outputPorts[index].put(message);
     }
 
-    protected Message<JSONObject> tryGetMessage() throws InterruptedException {
+    protected T tryGetMessage() throws InterruptedException {
         return inputPorts[0].get();
     }
 }

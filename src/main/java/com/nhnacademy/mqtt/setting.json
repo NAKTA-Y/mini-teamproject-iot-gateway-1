@@ -14,7 +14,10 @@
             "Checker": {
                 "type": "KeyChecker",
                 "parameters": {
-                    "keyList": ["deviceInfo"]
+                    "keyList": [
+                        "deviceInfo"
+                    ],
+                    "subKeyList": []
                 }
             }
         }
@@ -25,11 +28,15 @@
             "inputCount": 1,
             "outputCount": 1,
             "Checker": {
-                "type": "SubValueChecker",
+                "type": "ValueChecker",
                 "parameters": {
-                    "valueList": ["NHNAcademyEMS"],
+                    "valueList": [
+                        "NHNAcademyEMS"
+                    ],
                     "targetKey": "applicationName",
-                    "objectKeyNameList": ["deviceInfo"]
+                    "subKeyList": [
+                        "deviceInfo"
+                    ]
                 }
             }
         }
@@ -41,19 +48,6 @@
             "outputCount": 1
         }
     },
-    "NullValueFilter": {
-        "type": "Filter",
-        "parameters": {
-            "inputCount": 1,
-            "outputCount": 1,
-            "Checker": {
-                "type": "NotNullValueChecker",
-                "parameters": {
-                    "targetKey": "value"
-                }
-            }
-        }
-    },
     "SensorTypeFilter": {
         "type": "Filter",
         "parameters": {
@@ -62,8 +56,11 @@
             "Checker": {
                 "type": "ValueChecker",
                 "parameters": {
-                    "valueList": ["co2"],
-                    "targetKey": "topic"
+                    "valueList": [
+                        "co2"
+                    ],
+                    "targetKey": "topic",
+                    "subKeyList": []
                 }
             }
         }

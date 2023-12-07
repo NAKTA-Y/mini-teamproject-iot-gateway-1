@@ -1,7 +1,7 @@
 package com.nhnacademy.mqtt.checker;
 
-import org.json.JSONObject;
+import com.nhnacademy.mqtt.message.Message;
 
 public interface Checker {
-    boolean check(JSONObject jsonObject);
+    boolean check(Message message);
 }
