@@ -1,8 +1,8 @@
 package com.nhnacademy.mqtt;
 
-import com.nhnacademy.mqtt.checker.KeyChecker;
-import com.nhnacademy.mqtt.checker.ValueChecker;
-import com.nhnacademy.mqtt.message.Message;
+import com.nhnacademy.mqtt.checker.CheckStrategyFactory;
+import com.nhnacademy.mqtt.checker.Checker;
+import com.nhnacademy.mqtt.message.JSONMessage;
 import com.nhnacademy.mqtt.node.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
@@ -17,9 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -29,7 +27,6 @@ public class Mqtt {
     private static final String SERVER_URI_KEY_NAME = "serverURI";
     private static final String KEY_FILTER = "KeyFilter";
     private static final String KEY_LIST = "keyList";
-    private static final String SUB_KEY_LIST = "subKeyList";
     private static final String TARGET_KEY = "targetKey";
     private static final String VALUE_LIST = "valueList";
     private static final String MQTT_SUBSCRIBER = "MqttSubscriber";
@@ -56,27 +53,25 @@ public class Mqtt {
 
     private static void connect() throws JSONException, MqttException {
         MqttSubscriber mqttSubscriber = new MqttSubscriber(1,
-                getValue(jsonObject.getJSONObject(MQTT_SUBSCRIBER), SERVER_URI_KEY_NAME),
-                UUID.randomUUID().toString());
+                jsonObject.getJSONObject(MQTT_SUBSCRIBER).optString(SERVER_URI_KEY_NAME),
+                UUID.randomUUID().toString()
+        );
 
-        Filter<Message> keyFilter = new Filter<>(1, 1,
-                new KeyChecker(getValueList(jsonObject.getJSONObject(KEY_FILTER).getJSONArray(KEY_LIST)),
-                        getValueList(jsonObject.getJSONObject(KEY_FILTER).getJSONArray(SUB_KEY_LIST))));
+        Checker<JSONObject> jsonKeyChecker = new Checker<>(CheckStrategyFactory.create("KeyChecker", "KeyFilter", jsonObject));
+        Filter<JSONMessage> keyFilter = new Filter<>(1, 1, jsonKeyChecker);
 
-        Filter<Message> appNameFilter = new Filter<>(1, 1,
-                new ValueChecker(getValue(jsonObject.getJSONObject(APP_NAME_FILTER), TARGET_KEY),
-                        getValueList(jsonObject.getJSONObject(APP_NAME_FILTER).getJSONArray(VALUE_LIST)),
-                        getValueList(jsonObject.getJSONObject(APP_NAME_FILTER).getJSONArray(SUB_KEY_LIST))));
+        Checker<JSONObject> jsonValueChecker = new Checker<>(CheckStrategyFactory.create("ValueChecker", "AppNameFilter", jsonObject));
+        Filter<JSONMessage> appNameFilter = new Filter<>(1, 1, jsonValueChecker);
 
         ObjectGenerator objectGenerator = new ObjectGenerator(1, 1);
 
-        Filter<Message> sensorTypeFilter = new Filter<>(1, 1,
-                new ValueChecker(getValue(jsonObject.getJSONObject(SENSOR_TYPE_FILTER), TARGET_KEY),
-                        getValueList(jsonObject.getJSONObject(SENSOR_TYPE_FILTER).getJSONArray(VALUE_LIST)),
-                        getValueList(jsonObject.getJSONObject(SENSOR_TYPE_FILTER).getJSONArray(SUB_KEY_LIST))));
+        Checker<JSONObject> sensorTypeChecker = new Checker<>(CheckStrategyFactory.create("ValueChecker", "SensorTypeFilter", jsonObject));
+        Filter<JSONMessage> sensorTypeFilter = new Filter<>(1, 1, sensorTypeChecker);
 
         MqttPublisher mqttPublisher = new MqttPublisher(1,
-                getValue(jsonObject.getJSONObject("MqttPublisher"), SERVER_URI_KEY_NAME), UUID.randomUUID().toString());
+                jsonObject.getJSONObject("MqttPublisher").optString(SERVER_URI_KEY_NAME),
+                UUID.randomUUID().toString()
+        );
 
         mqttSubscriber.connect(0, keyFilter.getInputPort(0));
         keyFilter.connect(0, appNameFilter.getInputPort(0));
@@ -201,19 +196,5 @@ public class Mqtt {
         jsonObject.getJSONObject(SENSOR_TYPE_FILTER).put(VALUE_LIST, sensorTypeFilterValueList);
         jsonObject.getJSONObject(SENSOR_TYPE_FILTER).put(TARGET_KEY, sensorTypeFilterTargetKey);
         jsonObject.getJSONObject("MqttPublisher").put(SERVER_URI_KEY_NAME, mqttOutServerURI);
-    }
-
-    private static List<String> getValueList(JSONArray jsonArray) {
-        List<String> resultList = new ArrayList<>();
-
-        for (Object element : jsonArray) {
-            resultList.add((String) element);
-        }
-
-        return resultList;
-    }
-
-    private static String getValue(JSONObject jsonObject, String key) {
-        return jsonObject.optString(key);
     }
 }

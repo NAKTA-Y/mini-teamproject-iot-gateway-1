@@ -1,7 +1,6 @@
 package com.nhnacademy.mqtt.node;
 
-import com.nhnacademy.mqtt.message.JsonMessage;
-import com.nhnacademy.mqtt.message.Message;
+import com.nhnacademy.mqtt.message.JSONMessage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -10,7 +9,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONObject;
 
 @Slf4j
-public class MqttSubscriber extends OutputNode<Message> {
+public class MqttSubscriber extends OutputNode<JSONMessage> {
     private static final String TOPIC_FILTER = "application/#";
     private final MqttClient client;
     private final MqttConnectOptions options;
@@ -31,7 +30,7 @@ public class MqttSubscriber extends OutputNode<Message> {
             client.subscribe(TOPIC_FILTER, (topic, msg) -> {
                 // JSONObject 생성
                 JSONObject object = new JSONObject(new String(msg.getPayload()));
-                Message message = new JsonMessage(object);
+                JSONMessage message = new JSONMessage(object);
 
                 // Output
                 output(0, message);

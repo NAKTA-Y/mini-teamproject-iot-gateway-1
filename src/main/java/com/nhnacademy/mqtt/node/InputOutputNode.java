@@ -2,10 +2,10 @@ package com.nhnacademy.mqtt.node;
 
 import com.nhnacademy.mqtt.port.Port;
 
-public abstract class InputOutputNode<T> extends Node implements Runnable {
+public abstract class InputOutputNode<T, G> extends Node implements Runnable {
     private final Thread thread;
     private final Port<T>[] inputPorts;
-    private final Port<T>[] outputPorts;
+    private final Port<G>[] outputPorts;
 
     @SuppressWarnings("unchecked")
     protected InputOutputNode(int inputCount, int outputCount) {
@@ -26,11 +26,11 @@ public abstract class InputOutputNode<T> extends Node implements Runnable {
         return inputPorts[index];
     }
 
-    public void connect(int index, Port<T> inputPort) {
+    public void connect(int index, Port<G> inputPort) {
         outputPorts[index] = inputPort;
     }
 
-    protected void output(int index, T message) throws InterruptedException {
+    protected void output(int index, G message) throws InterruptedException {
         outputPorts[index].put(message);
     }
 

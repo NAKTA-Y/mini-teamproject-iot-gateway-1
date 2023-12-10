@@ -20,7 +20,8 @@
     "SensorTypeFilter": {
         "valueList": [
             "temperature",
-            "humidity"
+            "humidity",
+            "illumination"
         ],
         "targetKey": "topic",
         "subKeyList": []

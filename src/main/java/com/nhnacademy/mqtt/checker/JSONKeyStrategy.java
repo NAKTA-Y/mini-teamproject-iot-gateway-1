@@ -1,23 +1,20 @@
 package com.nhnacademy.mqtt.checker;
 
-import com.nhnacademy.mqtt.message.Message;
 import org.json.JSONObject;
 
 import java.util.List;
 
-public class KeyChecker implements Checker {
+public class JSONKeyStrategy implements CheckStrategy<JSONObject>{
     private final List<String> targetKeyList;
     private final List<String> subKeyList;
 
-    public KeyChecker(List<String> targetKeyList, List<String> subKeyList) {
+    public JSONKeyStrategy(List<String> targetKeyList, List<String> subKeyList) {
         this.targetKeyList = targetKeyList;
         this.subKeyList = subKeyList;
     }
 
     @Override
-    public boolean check(Message message) {
-        JSONObject object = (JSONObject) message.getPayload();
-
+    public boolean check(JSONObject object) {
         for (String subKey : subKeyList) {
             object = object.getJSONObject(subKey);
         }

@@ -8,10 +8,10 @@ public class CommonsTopicGenerator {
 
     public StringBuilder generate(JSONObject object) {
         StringBuilder builder = new StringBuilder();
-        builder.append("data/b/" + object.getJSONObject(DEVICE_INFO_KEY).getJSONObject("tags").get("branch"))
-                .append("/p/" + object.getJSONObject(DEVICE_INFO_KEY).getJSONObject("tags").get("place"))
-                .append("/d/" + object.getJSONObject(DEVICE_INFO_KEY).get("devEui"))
-                .append("/n/" + object.getJSONObject(DEVICE_INFO_KEY).getJSONObject("tags").get("name"))
+        builder.append("data/b/").append(object.getJSONObject(DEVICE_INFO_KEY).getJSONObject("tags").get("branch"))
+                .append("/p/").append(object.getJSONObject(DEVICE_INFO_KEY).getJSONObject("tags").get("place"))
+                .append("/d/").append(object.getJSONObject(DEVICE_INFO_KEY).get("devEui"))
+                .append("/n/").append(object.getJSONObject(DEVICE_INFO_KEY).getJSONObject("tags").get("name"))
                 .append("/e/");
         return builder;
     }

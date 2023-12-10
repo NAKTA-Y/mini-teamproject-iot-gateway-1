@@ -2,10 +2,10 @@ package com.nhnacademy.mqtt.message;
 
 import org.json.JSONObject;
 
-public class JsonMessage implements Message{
+public class JSONMessage implements Message{
     JSONObject jsonObject;
 
-    public JsonMessage(JSONObject jsonObject) {
+    public JSONMessage(JSONObject jsonObject) {
         this.jsonObject = jsonObject;
     }
 
