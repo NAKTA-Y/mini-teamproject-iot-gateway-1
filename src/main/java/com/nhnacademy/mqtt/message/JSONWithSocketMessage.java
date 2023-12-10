@@ -4,9 +4,9 @@ import org.json.JSONObject;
 
 import java.net.Socket;
 
-public class JsonWithSocketMessage extends SocketMessage{
+public class JSONWithSocketMessage extends SocketMessage{
     JSONObject jsonObject;
-    public JsonWithSocketMessage(Socket socket, JSONObject jsonObject) {
+    public JSONWithSocketMessage(Socket socket, JSONObject jsonObject) {
         super(socket);
         this.jsonObject = jsonObject;
     }

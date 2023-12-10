@@ -7,12 +7,12 @@ import com.nhnacademy.mqtt.message.Message;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class Filter<T extends Message> extends InputOutputNode<T> {
-    private final Checker keyChecker;
+public class Filter<T extends Message> extends InputOutputNode<T, T> {
+    private final Checker<?> checker;
 
-    public Filter(int inputCount, int outputCount, Checker keyChecker) {
+    public Filter(int inputCount, int outputCount, Checker<?> checker) {
         super(inputCount, outputCount);
-        this.keyChecker = keyChecker;
+        this.checker = checker;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class Filter<T extends Message> extends InputOutputNode<T> {
             try {
                 T receiveMessage = tryGetMessage();
 
-                if (keyChecker.check(receiveMessage)) {
+                if (checker.check(receiveMessage.getPayload())) {
                     output(0, receiveMessage);
                 }
 

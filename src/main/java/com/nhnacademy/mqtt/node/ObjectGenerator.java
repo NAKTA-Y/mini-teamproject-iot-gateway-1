@@ -2,7 +2,7 @@ package com.nhnacademy.mqtt.node;
 
 import com.nhnacademy.mqtt.CommonsTopicGenerator;
 import com.nhnacademy.mqtt.TypeSplitter;
-import com.nhnacademy.mqtt.message.JsonMessage;
+import com.nhnacademy.mqtt.message.JSONMessage;
 import com.nhnacademy.mqtt.message.Message;
 
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +13,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 @Slf4j
-public class ObjectGenerator extends InputOutputNode<Message> {
-    private CommonsTopicGenerator topicGenerator;
-    private TypeSplitter typeSplitter;
+public class ObjectGenerator extends InputOutputNode<JSONMessage, JSONMessage> {
+    private final CommonsTopicGenerator topicGenerator;
+    private final TypeSplitter typeSplitter;
 
     public ObjectGenerator(int inputCount, int outputCount) {
         super(inputCount, outputCount);
@@ -27,8 +27,8 @@ public class ObjectGenerator extends InputOutputNode<Message> {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                Message message = tryGetMessage();
-                JSONObject object = (JSONObject) message.getPayload();
+                JSONMessage message = tryGetMessage();
+                JSONObject object = message.getPayload();
 
                 String topic = topicGenerator.generate(object).toString(); // 토픽 생성
 
@@ -39,7 +39,7 @@ public class ObjectGenerator extends InputOutputNode<Message> {
                     o.put("topic", topic + entrySet.getKey());
                     o.put("time", System.currentTimeMillis() / 1000L);
                     o.put("value", entrySet.getValue());
-                    output(0, new JsonMessage(o));
+                    output(0, new JSONMessage(o));
                 }
             } catch (InterruptedException e) {
                 log.error("Thread Error : {}", e.getMessage());

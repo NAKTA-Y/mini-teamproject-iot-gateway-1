@@ -1,7 +1,22 @@
 package com.nhnacademy.mqtt.checker;
 
-import com.nhnacademy.mqtt.message.Message;
+import lombok.extern.slf4j.Slf4j;
 
-public interface Checker {
-    boolean check(Message message);
+@Slf4j
+public class Checker<T> {
+    private final CheckStrategy<T> checkStrategy;
+
+    public Checker(CheckStrategy<T> checkStrategy) {
+        this.checkStrategy = checkStrategy;
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean check(Object data) {
+        try {
+            return checkStrategy.check((T) data);
+        } catch (ClassCastException e) {
+            log.error("Type Casting Exception 발생: {}", e.getMessage());
+            return false;
+        }
+    }
 }
